@@ -1,0 +1,14 @@
+# API 키가 들어가는 파일 — 절대 커밋 금지
+config.local.json
+
+# 자동 생성 로그
+update.log
+
+# 임시/원자적 저장 파일
+data.js.tmp
+
+# OS/에디터 noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
