@@ -76,7 +76,7 @@
   .bwrap{overflow-x:auto;padding-bottom:14px}
   .bracket{display:flex;align-items:stretch;gap:0;min-width:1180px}
   .side{display:flex;flex:1}
-  .side.right{flex-direction:row-reverse}
+  /* 오른쪽 절반은 JS에서 [4강,8강,16강,32강] 순으로 구성 → 바깥(32강)에서 안쪽(4강)이 결승으로 수렴 */
   .round{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 10px}
   .rlabel{text-align:center;color:var(--muted);font-size:11px;font-weight:800;
     text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;position:sticky;top:0}
@@ -99,7 +99,7 @@
   .side .round:not(.final-col) .cell::after{content:"";position:absolute;top:50%;width:10px;
     height:1px;background:var(--border)}
   .side.left .round:not(:last-child) .cell::after{right:-10px}
-  .side.right .round:not(:last-child) .cell::after{left:-10px}
+  .side.right .round:not(:first-child) .cell::after{left:-10px}
   .final-col{flex:0 0 210px;display:flex;flex-direction:column;justify-content:center;align-items:center}
   .champ{margin-top:14px;text-align:center}
   .champ .cup{font-size:30px}
