@@ -467,17 +467,17 @@ window.WC_DATA = {
     ],
 
     qf:[
-      {id:201, date:"07-09", home:"프랑스", away:"모로코", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:202, date:"07-10", home:"노르웨이", away:"잉글랜드", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:203, date:"07-10", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]},
+      {id:201, date:"07-09", kst:"07-10 05:00", home:"프랑스", away:"모로코", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
+      {id:202, date:"07-11", kst:"07-12 06:00", home:"노르웨이", away:"잉글랜드", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
+      {id:203, date:"07-10", kst:"07-11 04:00", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]},
       {id:204, date:"07-11", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
     ],
 
     sf:[
-      {id:301, date:"07-14", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]},
-      {id:302, date:"07-15", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
+      {id:301, date:"07-14", kst:"07-15 04:00", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]},
+      {id:302, date:"07-15", kst:"07-16 04:00", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
     ],
 
-    final:{id:401, date:"07-19", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
+    final:{id:401, date:"07-19", kst:"07-20 04:00", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
   }
 };
