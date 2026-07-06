@@ -9,13 +9,14 @@
     --bg:#0e1116; --panel:#161b22; --panel2:#1c232d; --border:#2a323d;
     --text:#e6edf3; --muted:#8b949e; --accent:#3fb950; --accent2:#f0b429;
     --win:#3fb950; --live:#f85149; --chip:#21313d;
-    --home:#58a6ff; --away:#ff7b72;
+    --home:#58a6ff; --away:#ff7b72; --conn:#5b6674; --winline:#f85149;
   }
   @media (prefers-color-scheme: light){
     :root{
       --bg:#f4f6f9; --panel:#ffffff; --panel2:#f0f3f7; --border:#d7dee6;
       --text:#1b2430; --muted:#5b6673; --accent:#1a7f37; --accent2:#9a6700;
       --win:#1a7f37; --live:#cf222e; --chip:#e3ecf5; --home:#0969da; --away:#cf222e;
+      --conn:#aab4c0; --winline:#e5484d;
     }
   }
   *{box-sizing:border-box}
@@ -74,7 +75,9 @@
 
   /* ── 토너먼트 ── */
   .bwrap{overflow-x:auto;padding-bottom:14px}
-  .bracket{display:flex;align-items:stretch;gap:0;min-width:1180px}
+  .bracket{display:flex;align-items:stretch;gap:0;min-width:1180px;position:relative}
+  .connectors{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;z-index:0}
+  .bracket .side,.bracket .final-col{position:relative;z-index:1}
   .side{display:flex;flex:1}
   /* 오른쪽 절반은 JS에서 [4강,8강,16강,32강] 순으로 구성 → 바깥(32강)에서 안쪽(4강)이 결승으로 수렴 */
   .round{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 10px}
@@ -89,17 +92,14 @@
   .tie .row+.row{border-top:1px solid var(--border)}
   .tie .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .tie .gs{font-weight:800;min-width:18px;text-align:center;font-variant-numeric:tabular-nums}
-  .tie .row.win .nm{font-weight:800;color:var(--win)}
-  .tie .row.win .gs{color:var(--win)}
+  .tie .row.win{background:rgba(248,81,73,.08)}
+  .tie .row.win .nm{font-weight:800;color:var(--winline)}
+  .tie .row.win .gs{color:var(--winline)}
   .tie .row.lose{color:var(--muted)}
   .tie .meta{padding:4px 10px;font-size:10px;color:var(--muted);background:var(--panel2);
     display:flex;justify-content:space-between}
   .tie .meta .live{color:var(--live);font-weight:800}
-  /* 연결선 */
-  .side .round:not(.final-col) .cell::after{content:"";position:absolute;top:50%;width:10px;
-    height:1px;background:var(--border)}
-  .side.left .round:not(:last-child) .cell::after{right:-10px}
-  .side.right .round:not(:first-child) .cell::after{left:-10px}
+  /* 연결선은 SVG(.connectors)로 그림 — drawConnectors() 참고 */
   .final-col{flex:0 0 210px;display:flex;flex-direction:column;justify-content:center;align-items:center}
   .champ{margin-top:14px;text-align:center}
   .champ .cup{font-size:30px}
@@ -229,12 +229,19 @@
 
   // ---------- 토너먼트 ----------
   var ROUNDS=[['r32','32강',16],['r16','16강',8],['qf','8강',4],['sf','4강',2]];
+  var REFS={left:null,right:null,final:null};  // 연결선 계산용 tie 요소/승자 정보
+  var SVGNS='http://www.w3.org/2000/svg';
+  function hasWinner(t){
+    return played(t) && (t.winner!=null || t.homeScore!==t.awayScore);
+  }
   function renderBracket(){
     if(!D || !D.knockout){ return emptyMsg(); }
     var k=D.knockout;
     var wrap=el('div'); wrap.className='bwrap';
     var b=el('div'); b.className='bracket';
 
+    var svg=document.createElementNS(SVGNS,'svg'); svg.setAttribute('class','connectors');
+    b.appendChild(svg);                       // 맨 아래(연결선) → 박스들이 위에
     b.appendChild(halfSide('left',k));
     b.appendChild(finalCol(k));
     b.appendChild(halfSide('right',k));
@@ -244,37 +251,88 @@
   }
   function halfSide(side,k){
     var s=el('div'); s.className='side '+side;
-    var order = side==='left' ? ROUNDS : ROUNDS.slice().reverse();
-    order.forEach(function(r){
-      var key=r[0],label=r[1],total=r[2];
+    // 라운드별 tie 요소를 논리 순서(r32→sf)로 수집
+    var perRound={};
+    ROUNDS.forEach(function(r){
+      var key=r[0],total=r[2],half=total/2;
       var arr=k[key]||[];
-      var half=total/2;
       var slice = side==='left' ? arr.slice(0,half) : arr.slice(half,total);
-      s.appendChild(roundCol(label,slice));
+      perRound[key]=slice.map(function(m){ return {el:tieBox(m,false), win:hasWinner(m)}; });
     });
+    // 화면 컬럼 순서(왼쪽=바깥32강→안쪽4강, 오른쪽=반대)
+    var order = side==='left' ? ROUNDS : ROUNDS.slice().reverse();
+    order.forEach(function(r){ s.appendChild(roundCol(r[1], perRound[r[0]])); });
+    REFS[side]=ROUNDS.map(function(r){ return perRound[r[0]]; });
     return s;
   }
-  function roundCol(label,ties){
+  function roundCol(label,items){
     var col=el('div'); col.className='round';
     var lbl=el('div'); lbl.className='rlabel'; lbl.textContent=label; col.appendChild(lbl);
-    ties.forEach(function(t){
+    items.forEach(function(it){
       var cell=el('div'); cell.className='cell';
-      cell.appendChild(tieBox(t,false));
+      cell.appendChild(it.el);
       col.appendChild(cell);
     });
     return col;
+  }
+  // 대진표가 DOM에 붙은 뒤 호출: 박스 위치를 재서 전체 연결선을 SVG로 그림
+  function drawConnectors(){
+    var bracket=document.querySelector('.bracket'); if(!bracket) return;
+    var svg=bracket.querySelector('svg.connectors'); if(!svg||!REFS.left) return;
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    if(window.innerWidth<=760) return;         // 모바일 세로 스택에선 연결선 생략
+    var br=bracket.getBoundingClientRect();
+    var W=bracket.scrollWidth, H=bracket.scrollHeight;
+    svg.setAttribute('width',W); svg.setAttribute('height',H);
+    svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    function box(el){ var r=el.getBoundingClientRect(); return {
+      l:r.left-br.left, r:r.right-br.left, cy:(r.top+r.bottom)/2-br.top }; }
+    function line(childEl,parentEl,side,isWin){
+      var c=box(childEl), p=box(parentEl);
+      var cx = side==='left'? c.r : c.l;         // 자식은 중앙쪽으로 나감
+      var px = side==='left'? p.l : p.r;         // 부모의 바깥쪽으로 들어옴
+      var mx=(cx+px)/2;
+      var d='M '+cx+' '+c.cy+' H '+mx+' V '+p.cy+' H '+px;
+      var path=document.createElementNS(SVGNS,'path');
+      path.setAttribute('d',d);
+      path.style.fill='none';
+      path.style.stroke = isWin?'var(--winline)':'var(--conn)';   // style로 지정해야 var() 해석됨
+      path.style.strokeWidth = (isWin?3.5:1.8)+'px';
+      path.style.strokeLinejoin='round';
+      path.style.strokeLinecap='round';
+      path.style.opacity = isWin?'1':'0.85';
+      svg.appendChild(path);
+    }
+    ['left','right'].forEach(function(side){
+      var rounds=REFS[side];                     // [r32[],r16[],qf[],sf[]]
+      for(var r=0;r<3;r++){
+        rounds[r].forEach(function(it,i){
+          var parent=rounds[r+1][Math.floor(i/2)];
+          if(parent) line(it.el, parent.el, side, it.win);
+        });
+      }
+      if(rounds[3][0] && REFS.final) line(rounds[3][0].el, REFS.final.el, side, rounds[3][0].win);
+    });
   }
   function finalCol(k){
     var col=el('div'); col.className='round final-col';
     var lbl=el('div'); lbl.className='rlabel'; lbl.textContent='결승'; col.appendChild(lbl);
     var f=k.final || {home:'미정',away:'미정',status:'TBD'};
-    col.appendChild(tieBox(f,true));
+    var ftie=tieBox(f,true);
+    REFS.final={el:ftie, win:hasWinner(f)};
+    col.appendChild(ftie);
     var champ=el('div'); champ.className='champ';
     var winner = f.winner || null;
     champ.innerHTML='<div class="cup">🏆</div><div class="lbl">우승</div>'
       +'<div class="who">'+esc(winner||'—')+'</div>';
     col.appendChild(champ);
     return col;
+  }
+  // 경기 일시 표기: kst 필드(한국시간 "MM-DD HH:mm")가 있으면 시간까지, 없으면 날짜만
+  function fmtWhen(t){
+    if(t.kst) return t.kst+' KST';
+    return t.date||'';
   }
   function tieBox(t,isFinal){
     var box=el('div'); box.className='tie'+(isFinal?' finaltie':'');
@@ -289,9 +347,9 @@
         +'<span class="gs">'+(score==null?'':esc(score))+'</span></div>';
     }
     var meta='';
-    if(live) meta='<div class="meta"><span class="live">● LIVE</span><span>'+esc(t.date||'')+'</span></div>';
+    if(live) meta='<div class="meta"><span class="live">● LIVE</span><span>'+esc(fmtWhen(t))+'</span></div>';
     else if(done && t.detail) meta='<div class="meta"><span></span><span>'+esc(t.detail)+'</span></div>';
-    else if(t.date && !done) meta='<div class="meta"><span></span><span>'+esc(t.date)+'</span></div>';
+    else if(!done && (t.kst||t.date)) meta='<div class="meta"><span>⏱</span><span>'+esc(fmtWhen(t))+'</span></div>';
     box.innerHTML = rowHtml(t.home,done?t.homeScore:null,hw,done&&!hw)
       + rowHtml(t.away,done?t.awayScore:null,aw,done&&!aw) + meta;
     if(done && (t.goals||[]).length){
@@ -332,15 +390,25 @@
 
   // ---------- 라우팅 ----------
   var tabs=document.querySelectorAll('.tab');
+  var curView='groups';
   function show(view){
+    curView=view;
     tabs.forEach(function(t){t.classList.toggle('active',t.dataset.view===view);});
     app.innerHTML='';
     app.appendChild(view==='bracket'?renderBracket():renderGroups());
     if(location.hash!=='#'+view) history.replaceState(null,'','#'+view);
+    if(view==='bracket'){
+      // 레이아웃 확정 후 연결선 그리기 (두 프레임 뒤 폰트/줄바꿈 안정화)
+      requestAnimationFrame(function(){ drawConnectors(); requestAnimationFrame(drawConnectors); });
+    }
   }
   tabs.forEach(function(t){t.onclick=function(){show(t.dataset.view);};});
   window.addEventListener('hashchange',function(){
     show(location.hash==='#bracket'?'bracket':'groups');});
+  var rz; window.addEventListener('resize',function(){
+    if(curView!=='bracket') return;
+    clearTimeout(rz); rz=setTimeout(drawConnectors,120);
+  });
 
   if(D && D.updatedAt){
     var dt=new Date(D.updatedAt);

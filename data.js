@@ -460,10 +460,10 @@ window.WC_DATA = {
                {minute:42,player:"Julián Quiñones",side:"home",type:"goal"},
                {minute:60,player:"Harry Kane",side:"away",type:"penalty"},
                {minute:69,player:"Raúl Jiménez",side:"home",type:"penalty"}]},
-      {id:105, date:"07-06", home:"포르투갈", away:"스페인", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:106, date:"07-06", home:"미국", away:"벨기에", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:107, date:"07-07", home:"아르헨티나", away:"이집트", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:108, date:"07-07", home:"스위스", away:"콜롬비아", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
+      {id:105, date:"07-06", kst:"07-07 04:00", home:"포르투갈", away:"스페인", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
+      {id:106, date:"07-06", kst:"07-07 09:00", home:"미국", away:"벨기에", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
+      {id:107, date:"07-07", kst:"07-08 01:00", home:"아르헨티나", away:"이집트", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
+      {id:108, date:"07-07", kst:"07-08 05:00", home:"스위스", away:"콜롬비아", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
     ],
 
     qf:[
