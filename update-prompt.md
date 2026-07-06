@@ -1,73 +1,46 @@
-# 월드컵 데이터 업데이트 지시문 (claude -p 용)
+# 월드컵 데이터 업데이트 지시문 (claude -p / 웹 검색 기반, API 키 불필요)
 
-너는 이 프로젝트 폴더에서 실행되는 비대화형 에이전트다. 아래 절차대로 **API-Football(api-sports.io)** 에서 2026 북중미 월드컵 데이터를 가져와 `data.js` 파일을 갱신하라. 사람에게 질문하지 말고, 불필요한 설명 없이 작업만 수행한 뒤 마지막에 한 줄 요약(갱신 경기 수 / 사용한 API 요청 수)만 출력하라.
+너는 이 프로젝트 폴더에서 실행되는 비대화형 에이전트다. **웹 검색으로** 2026 북중미 월드컵의 최신 실제 결과를 확인해 `data.js` 파일의 녹아웃(토너먼트) 부분을 갱신하라. 사람에게 질문하지 말고, 마지막에 한 줄 요약만 출력한다.
 
 ## 0. 준비
-- 작업 폴더: 현재 디렉터리(`index.html`, `data.js`, `config.local.json` 가 있는 곳).
-- `config.local.json` 을 읽어 `apiKey`, `league`(=1), `season`(=2026), `apiBase` 를 얻는다.
-- `apiKey` 가 비어 있거나 placeholder(`여기에_`로 시작)면 **아무것도 덮어쓰지 말고** "API 키가 설정되지 않았습니다"만 출력하고 종료.
-- 현재 시각은 Bash `date` 명령으로 구한다(ISO8601 + KST 오프셋).
+- 작업 폴더: 현재 디렉터리(`index.html`, `data.js` 가 있는 곳).
+- 현재 날짜/시각을 Bash `date` 로 구한다(ISO8601 + KST). 이 "오늘 날짜"가 판단 기준이다.
+- 기존 `data.js` 를 읽어 현재 `window.WC_DATA` 상태를 파악한다.
 
-## 1. 기존 data.js 로드 (레이트리밋 절약)
-- 기존 `data.js` 가 있으면 읽어서, 이미 `status:"FT"` 이고 `goals` 배열이 채워진 경기의 fixture `id` 목록을 확보한다.
-- 이 경기들은 **이벤트(득점)를 다시 요청하지 않는다.** 새로 끝났거나 진행 중(LIVE)인 경기만 이벤트를 요청한다.
-- 단, 기존 파일이 `sample:true` 이면 전체를 새로 구축한다(샘플이므로).
+## 1. 무엇을 갱신하는가 (중요 — 최소 범위)
+- **조별리그(groups)는 이미 종료되어 `data.js` 에 확정 저장돼 있다. 절대 바꾸지 말고 그대로 유지**한다(재검색 불필요).
+- **오직 knockout(r32/r16/qf/sf/final)만** 손댄다. 그중에서도:
+  - 이미 `status:"FT"` 이고 스코어가 있는 경기는 **다시 건드리지 않는다**(확정된 과거 결과).
+  - `status` 가 `LIVE`/`NS`/`TBD` 인데 **경기 날짜(date)가 오늘 이하**인 경기만 웹에서 결과를 확인해 갱신한다.
+  - 아직 안 열린 경기(날짜가 미래)는 그대로 둔다.
 
-## 2. API 호출 (모든 요청 헤더: `x-apisports-key: <apiKey>`)
-`curl -s -H "x-apisports-key: KEY" "URL"` 형식. base = `apiBase`.
+## 2. 웹 검색 방법
+- WebSearch 로 "2026 FIFA World Cup Round of 16 results", "... quarter-finals results" 등을 검색하고, WebFetch 로 신뢰 소스를 확인한다.
+- 신뢰 소스 우선순위: 영문 **Wikipedia** "2026 FIFA World Cup knockout stage"(가장 구조적), ESPN, FIFA.com, BBC/Sky Sports, 그리고 한국어는 **네이버 스포츠(sports.news.naver.com)**. 스코어는 **최소 2개 소스로 교차확인**한다.
+- ⚠️ 주의: 한 번의 요약이 아직 안 열린 경기의 가짜 스코어를 만들어내는 경우가 있다(과거 사례 있음). **오늘 날짜 이후 경기의 결과는 신뢰하지 말고 버린다.**
 
-1. **순위/조 구성**: `GET /standings?league=1&season=2026`
-   - 응답 `response[0].league.standings` 는 조별 배열. 각 조에서 팀명·경기수·승·무·패·득점·실점·득실차·승점·순위를 추출.
-   - 조 이름(A~L)은 `group` 필드에서 "Group A" → "A" 로 정리.
-   - **팀 → 조 매핑 테이블**을 만들어 둔다(다음 단계에서 경기를 조에 배정할 때 사용).
+## 3. 각 녹아웃 경기 갱신 항목
+- `homeScore`, `awayScore`, `status`("FT" 종료 / "LIVE" 진행중 / 그대로 "NS"·"TBD"), `winner`(종료 시 승자 팀명, 한글).
+- 연장/승부차기면 `detail`: 예 `"승부차기 4-3"`, `"연장 승부"`.
+- 득점자 `goals`: `{minute, player, side:"home"|"away", type:"goal"|"penalty"|"own"}`. 분은 정수 또는 `"45+2"` 문자열. **확인 안 되면 goals 를 빈 배열로 두되 스코어는 넣는다. 선수명·분을 지어내지 마라.**
 
-2. **전체 일정/스코어**: `GET /fixtures?league=1&season=2026`
-   - 각 fixture 에서: `fixture.id`, `fixture.date`, `fixture.status.short`(NS/1H/HT/2H/FT/AET/PEN 등), `teams.home/away.name`, `goals.home/away`, `score.penalty`(승부차기), `league.round`(예: "Group Stage - 1", "Round of 32", "Round of 16", "Quarter-finals", "Semi-finals", "Final") 추출.
-   - status 매핑: `NS`→미시작, `1H/2H/HT/ET/LIVE`→LIVE, `FT/AET/PEN`→FT, 미정 대진→TBD.
+## 4. 대진 진출(승자 올려보내기)
+녹아웃 배열 크기는 고정 유지(r32=16, r16=8, qf=4, sf=2, final=1). 승자가 정해지면 다음 라운드의 해당 자리(home/away)를 채운다. 연결 규칙:
+- r32[2i], r32[2i+1] 의 승자 → r16[i] 의 home/away
+- r16[2i], r16[2i+1] 승자 → qf[i]
+- qf[2i], qf[2i+1] 승자 → sf[i]
+- sf[0], sf[1] 승자 → final
+- final 승자가 정해지면 `final.winner` 에 넣는다(뷰의 "우승"에 표시됨).
+- 아직 양쪽이 안 정해진 다음 라운드 자리는 `home:"미정", away:"미정", status:"TBD"` 로 유지.
 
-3. **득점 이벤트**(1단계 필터 통과한 경기만): `GET /fixtures/events?fixture=ID`
-   - `type=="Goal"` 인 이벤트만 사용. `time.elapsed`(+`time.extra` 있으면 `"45+2"` 형태로), `player.name`, 팀이 홈이면 `side:"home"` 아니면 `"away"`.
-   - `detail=="Penalty"`→`type:"penalty"`, `detail=="Own Goal"`→`type:"own"`, 그 외 `type:"goal"`.
-   - **요청 총합이 90건을 넘지 않도록** 관리한다(무료 100/일). 남은 미처리 경기가 있으면 다음 실행 때 이어서 처리하고, 로그에 남긴다.
+## 5. 팀명 한글 표기
+기존 `data.js` 에 쓰인 한글 표기와 **동일하게** 맞춘다(예: 미국, 잉글랜드, DR콩고, 카보베르데, 코트디부아르, 보스니아헤르체고비나, 노르웨이, 파라과이 등). 새로 등장하는 팀만 자연스러운 한글로.
 
-## 3. 데이터 조립 → 아래 스키마로 `window.WC_DATA` 구성
-```js
-window.WC_DATA = {
-  updatedAt: "<ISO8601+09:00>",
-  groups: [ { name:"A",
-    standings:[{rank,team,played,won,drawn,lost,gf,ga,gd,points}, ...4팀],
-    matches:[{date:"MM-DD",home,away,homeScore,awayScore,status,goals:[{minute,player,side,type}]}] } ...A~L ],
-  knockout: {
-    r32:[ {id,date:"MM-DD",home,away,homeScore,awayScore,status,winner,detail,goals:[...]} ...16 ],
-    r16:[...8], qf:[...4], sf:[...2], final:{...1}
-  }
-}
-```
-규칙:
-- **조 배정**: 각 group-stage fixture 를 홈팀의 조(1단계 매핑)로 넣는다. 각 조 matches 는 날짜순 정렬.
-- **녹아웃 배열 크기 고정**: r32=16, r16=8, qf=4, sf=2, final=1. 아직 대진이 안 정해진 자리는 `home:"미정", away:"미정", status:"TBD"` placeholder 로 채워 크기를 유지한다(뷰의 사다리꼴 레이아웃이 깨지지 않도록).
-- **좌우 배치**: r32 앞 8경기 = 왼쪽, 뒤 8경기 = 오른쪽으로 뷰가 나누므로, 대진표 상단→하단 순서를 유지해 넣는다(API의 fixture 순서 사용).
-- **winner**: FT 인 경기만 설정. 정규/연장 스코어로 판정, 동점이면 `score.penalty` 로 승자 결정하고 `detail:"승부차기 X-Y"` 표기. 연장 승부면 `detail:"연장 승부"`.
-- **final** 은 배열이 아니라 단일 객체.
+## 6. 원자적 저장
+- 전체 `window.WC_DATA` 객체(groups 는 기존 그대로 + knockout 갱신분)를 `data.js` 에 쓴다.
+- 임시 파일 `data.js.tmp` 에 먼저 쓰고, `window.WC_DATA =` 로 시작하고 중괄호가 균형 잡힌 걸 확인한 뒤 `data.js` 로 교체(이동)한다. 반쯤 쓰다 만 파일을 남기지 마라.
+- `updatedAt` 을 현재 시각으로 갱신한다.
+- 갱신할 새 결과가 하나도 없으면 `updatedAt` 만 갱신(또는 그대로 두고) 종료해도 된다. 기존 데이터를 훼손하지 마라.
 
-## 4. 팀명 한글 표기
-아래 매핑을 적용하고, 표에 없는 팀은 API 영문명을 그대로 둔다(에러 아님).
-```
-Mexico→멕시코, Canada→캐나다, USA/United States→미국, Brazil→브라질, Argentina→아르헨티나,
-France→프랑스, Spain→스페인, Germany→독일, England→잉글랜드, Portugal→포르투갈,
-Netherlands→네덜란드, Italy→이탈리아, Belgium→벨기에, Croatia→크로아티아, Uruguay→우루과이,
-Morocco→모로코, Japan→일본, South Korea/Korea Republic→대한민국, Senegal→세네갈, Switzerland→스위스,
-Denmark→덴마크, Poland→폴란드, Colombia→콜롬비아, Ecuador→에콰도르, Serbia→세르비아,
-Iran→이란, Australia→호주, Ghana→가나, Egypt→이집트, Nigeria→나이지리아, Austria→오스트리아,
-Peru→페루, Qatar→카타르, Tunisia→튀니지, Cameroon→카메룬, Panama→파나마, Costa Rica→코스타리카,
-Saudi Arabia→사우디아라비아, New Zealand→뉴질랜드, Uzbekistan→우즈베키스탄, Ivory Coast→코트디부아르,
-Slovenia→슬로베니아, South Africa→남아프리카공화국, Jordan→요르단, New Caledonia→뉴칼레도니아
-```
-
-## 5. 원자적 저장
-- 결과를 `data.js` 파일에 쓴다. 반드시 임시 파일(`data.js.tmp`)에 먼저 쓰고, 유효하면(중괄호 균형·`window.WC_DATA =` 로 시작) `data.js` 로 교체(이동)한다. 절대 반쯤 쓰다 만 파일을 남기지 마라.
-- `sample` 필드는 제거한다(실데이터이므로).
-- 실패 시 기존 `data.js` 를 건드리지 말고 오류 한 줄만 출력.
-
-## 6. 마무리 출력(한 줄)
-`갱신: 이벤트요청 N건, 총 API요청 M건, updatedAt=<시각>`
+## 7. 마무리 출력(한 줄)
+`갱신: 새로 확정 N경기 (예: 브라질 2-1 노르웨이 …), updatedAt=<시각>` 형식으로 요약.

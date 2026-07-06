@@ -20,11 +20,11 @@ if (-not $claude) {
 $prompt = Get-Content (Join-Path $root "update-prompt.md") -Raw -Encoding UTF8
 
 # 비대화형 실행: 스케줄러 환경이라 권한 프롬프트가 뜨면 멈추므로 자동 승인.
-# (이 폴더 안에서 curl/파일쓰기만 수행하도록 update-prompt.md 로 제한되어 있음)
+# (웹 검색으로 결과를 확인하고 data.js 만 갱신하도록 update-prompt.md 로 제한되어 있음)
 try {
   $out = $prompt | & claude -p `
       --dangerously-skip-permissions `
-      --allowedTools "Bash,Read,Write,Edit" 2>&1 | Out-String
+      --allowedTools "Bash,Read,Write,Edit,WebSearch,WebFetch" 2>&1 | Out-String
   Add-Content -Path $log -Value $out
   Add-Content -Path $log -Value "[완료] $(Get-Date -Format 'HH:mm:ss')"
 } catch {

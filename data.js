@@ -1,10 +1,10 @@
 /*  2026 북중미 월드컵 실제 데이터
- *  기준 시각: 2026-07-05 (조별리그 종료 / 32강 종료 / 16강 진행 중 / 8강 이후 미개최)
+ *  기준 시각: 2026-07-06 (조별리그 종료 / 32강 종료 / 16강 진행 중 / 8강 이후 미개최)
  *  출처: 위키피디아 각 조·녹아웃 페이지, ESPN, FIFA, NBC/CBS Sports, Sky Sports 등 교차 확인.
  *  ※ 8강~결승은 아직 열리지 않아 "미정"으로 둡니다. API 자동 업데이트가 이후 채웁니다.
  */
 window.WC_DATA = {
-  updatedAt: "2026-07-05T22:08:23+09:00",
+  updatedAt: "2026-07-06T16:42:12+09:00",
 
   groups: [
     { name:"A",
@@ -450,8 +450,16 @@ window.WC_DATA = {
                {minute:90,player:"Soufiane Rahimi",side:"away",type:"goal"}]},
       {id:102, date:"07-04", home:"파라과이", away:"프랑스", homeScore:0, awayScore:1, status:"FT", winner:"프랑스",
         goals:[{minute:70,player:"Kylian Mbappé",side:"away",type:"penalty"}]},
-      {id:103, date:"07-05", home:"브라질", away:"노르웨이", homeScore:null, awayScore:null, status:"LIVE", winner:null, goals:[]},
-      {id:104, date:"07-05", home:"멕시코", away:"잉글랜드", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
+      {id:103, date:"07-05", home:"브라질", away:"노르웨이", homeScore:1, awayScore:2, status:"FT", winner:"노르웨이",
+        goals:[{minute:79,player:"Erling Haaland",side:"away",type:"goal"},
+               {minute:90,player:"Erling Haaland",side:"away",type:"goal"},
+               {minute:"90+10",player:"Neymar",side:"home",type:"penalty"}]},
+      {id:104, date:"07-05", home:"멕시코", away:"잉글랜드", homeScore:2, awayScore:3, status:"FT", winner:"잉글랜드",
+        goals:[{minute:36,player:"Jude Bellingham",side:"away",type:"goal"},
+               {minute:38,player:"Jude Bellingham",side:"away",type:"goal"},
+               {minute:42,player:"Julián Quiñones",side:"home",type:"goal"},
+               {minute:60,player:"Harry Kane",side:"away",type:"penalty"},
+               {minute:69,player:"Raúl Jiménez",side:"home",type:"penalty"}]},
       {id:105, date:"07-06", home:"포르투갈", away:"스페인", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
       {id:106, date:"07-06", home:"미국", away:"벨기에", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
       {id:107, date:"07-07", home:"아르헨티나", away:"이집트", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
@@ -460,7 +468,7 @@ window.WC_DATA = {
 
     qf:[
       {id:201, date:"07-09", home:"프랑스", away:"모로코", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:202, date:"07-10", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]},
+      {id:202, date:"07-10", home:"노르웨이", away:"잉글랜드", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
       {id:203, date:"07-10", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]},
       {id:204, date:"07-11", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
     ],
