@@ -1,0 +1,60 @@
+name: 월드컵 자동 갱신 (클라우드)
+
+# 매일 한국시간 07:09 / 13:09 에 실행 (GitHub Actions 는 UTC 기준 → KST = UTC+9)
+on:
+  schedule:
+    - cron: '9 22 * * *'   # 07:09 KST
+    - cron: '9 4 * * *'    # 13:09 KST
+  workflow_dispatch: {}     # 저장소 Actions 탭에서 수동 실행 버튼
+
+permissions:
+  contents: write           # data.js 커밋/푸시용
+
+concurrency:
+  group: wc-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Seoul          # date 명령이 한국시간을 내도록
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Claude Code 설치
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: 데이터 갱신 (웹 검색 → data.js)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::ANTHROPIC_API_KEY 시크릿이 설정되지 않았습니다. 저장소 Settings → Secrets → Actions 에 추가하세요."
+            exit 1
+          fi
+          claude -p "$(cat update-prompt.md)" \
+            --dangerously-skip-permissions \
+            --allowedTools "Bash,Read,Write,Edit,WebSearch,WebFetch" \
+            > update.log 2>&1 || true
+          echo "----- update.log (마지막 25줄) -----"
+          tail -n 25 update.log || true
+
+      - name: 변경분 커밋 & 푸시
+        run: |
+          git config user.name "worldcup-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- data.js; then
+            echo "새 결과 없음 — 커밋 생략"
+          else
+            git add data.js
+            git commit -m "auto: 월드컵 data.js 갱신 ($(date '+%Y-%m-%d %H:%M KST'))"
+            git push
+            echo "data.js 갱신 커밋 완료"
+          fi
