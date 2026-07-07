@@ -4,7 +4,7 @@
  *  ※ 8강~결승은 아직 열리지 않아 "미정"으로 둡니다. API 자동 업데이트가 이후 채웁니다.
  */
 window.WC_DATA = {
-  updatedAt: "2026-07-06T18:14:01+09:00",
+  updatedAt: "2026-07-07T21:30:00+09:00",
 
   groups: [
     { name:"A",
@@ -460,8 +460,14 @@ window.WC_DATA = {
                {minute:42,player:"Julián Quiñones",side:"home",type:"goal"},
                {minute:60,player:"Harry Kane",side:"away",type:"penalty"},
                {minute:69,player:"Raúl Jiménez",side:"home",type:"penalty"}]},
-      {id:105, date:"07-06", kst:"07-07 04:00", home:"포르투갈", away:"스페인", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:106, date:"07-06", kst:"07-07 09:00", home:"미국", away:"벨기에", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
+      {id:105, date:"07-06", home:"포르투갈", away:"스페인", homeScore:0, awayScore:1, status:"FT", winner:"스페인",
+        goals:[{minute:"90+1",player:"Mikel Merino",side:"away",type:"goal"}]},
+      {id:106, date:"07-06", home:"미국", away:"벨기에", homeScore:1, awayScore:4, status:"FT", winner:"벨기에",
+        goals:[{minute:9,player:"Charles De Ketelaere",side:"away",type:"goal"},
+               {minute:31,player:"Malik Tillman",side:"home",type:"goal"},
+               {minute:33,player:"Charles De Ketelaere",side:"away",type:"goal"},
+               {minute:57,player:"Hans Vanaken",side:"away",type:"goal"},
+               {minute:"90+3",player:"Romelu Lukaku",side:"away",type:"goal"}]},
       {id:107, date:"07-07", kst:"07-08 01:00", home:"아르헨티나", away:"이집트", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
       {id:108, date:"07-07", kst:"07-08 05:00", home:"스위스", away:"콜롬비아", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
     ],
@@ -469,7 +475,7 @@ window.WC_DATA = {
     qf:[
       {id:201, date:"07-09", kst:"07-10 05:00", home:"프랑스", away:"모로코", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
       {id:202, date:"07-11", kst:"07-12 06:00", home:"노르웨이", away:"잉글랜드", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:203, date:"07-10", kst:"07-11 04:00", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]},
+      {id:203, date:"07-10", kst:"07-11 04:00", home:"스페인", away:"벨기에", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
       {id:204, date:"07-11", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
     ],
 
