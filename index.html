@@ -56,7 +56,7 @@
   .pts{font-weight:800}
   .gmatches{padding:8px 12px 12px;display:flex;flex-direction:column;gap:4px}
   .gmatches .sec{color:var(--muted);font-size:11px;font-weight:700;margin:6px 0 2px}
-  .m{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;
+  .m{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;
     background:var(--panel2);cursor:pointer;font-size:13px}
   .m:hover{outline:1px solid var(--border)}
   .m .t1{flex:1;text-align:right}
@@ -71,6 +71,9 @@
   .goalcol.right{text-align:right}
   .goalcol .g{white-space:nowrap}
   .goalcol .min{color:var(--accent2);font-weight:800;font-variant-numeric:tabular-nums}
+  .goalcol .gteam{font-size:11px;font-weight:800;color:var(--text);
+    margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--border)}
+  .goalcol .gnone{opacity:.45}
   .pk{opacity:.8;font-size:11px}
 
   /* ── 토너먼트 ── */
@@ -123,6 +126,8 @@
   .tl .h{text-align:right}
   .tl .a{text-align:left}
   .tl .mm{color:var(--accent2);font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
+  .tl .th{font-weight:800;color:var(--text);font-size:13px;padding-bottom:5px;
+    margin-bottom:3px;border-bottom:1px solid var(--border)}
   .tl .none{grid-column:1/4;text-align:center;color:var(--muted);padding:8px}
 
   .empty{text-align:center;color:var(--muted);padding:80px 20px;font-size:15px}
@@ -172,6 +177,13 @@
            : g.type==='own' ? ' <span class="pk">(OG)</span>' : '';
     return '<span class="min">'+esc(g.minute)+"'</span> "+esc(g.player)+pk;
   }
+  // 득점 주체가 홈 팀인지 판정 (데이터는 side 기준. team 명이 있으면 보조 사용)
+  function isHomeGoal(g, m){
+    return g.side==='home'
+      || (g.team!=null && (g.team===m.home || g.team===m.homeTeamCode));
+  }
+  // "90+1" 같은 문자열 분을 정렬용 정수로
+  function gmin(g){ var n=parseInt(String(g.minute),10); return isNaN(n)?0:n; }
   function played(m){return m && m.status && m.status!=='NS' && m.status!=='TBD'
     && m.homeScore!=null && m.awayScore!=null;}
 
@@ -211,16 +223,19 @@
     var aw = played(m) && m.awayScore>m.homeScore;
     var sc = played(m) ? (m.homeScore+' : '+m.awayScore) : '-';
     var hg='',ag='';
-    (m.goals||[]).forEach(function(g){
+    (m.goals||[]).slice().sort(function(a,c){return gmin(a)-gmin(c);}).forEach(function(g){
       var s='<div class="g">'+goalStr(g)+'</div>';
-      if(g.team===m.homeTeamCode || g.side==='home' || g.team===m.home) hg+=s; else ag+=s;
+      if(isHomeGoal(g,m)) hg+=s; else ag+=s;
     });
     row.innerHTML =
       '<div class="t1'+(hw?' w':'')+'">'+esc(m.home)+'</div>'
       +'<div class="sc">'+sc+'</div>'
       +'<div class="t2'+(aw?' w':'')+'">'+esc(m.away)+'</div>'
-      +'<div class="goals"><div class="goalcol right">'+(hg||'')+'</div>'
-      +'<div class="goalcol">'+(ag||'')+'</div></div>';
+      +'<div class="goals">'
+      +'<div class="goalcol right"><div class="gteam">'+esc(m.home)+'</div>'
+        +(hg||'<div class="g gnone">무득점</div>')+'</div>'
+      +'<div class="goalcol"><div class="gteam">'+esc(m.away)+'</div>'
+        +(ag||'<div class="g gnone">무득점</div>')+'</div></div>';
     if((m.goals||[]).length){
       row.addEventListener('click',function(){row.classList.toggle('open');});
     } else { row.style.cursor='default'; }
@@ -366,17 +381,19 @@
     document.getElementById('mTitle').textContent=(t.home||'')+' vs '+(t.away||'');
     var b=document.getElementById('mBody');
     var rows='';
-    (t.goals||[]).slice().sort(function(a,c){return a.minute-c.minute;}).forEach(function(g){
-      var isHome = g.team===t.home || g.side==='home' || g.team===t.homeTeamCode;
+    (t.goals||[]).slice().sort(function(a,c){return gmin(a)-gmin(c);}).forEach(function(g){
+      var isHome = isHomeGoal(g,t);
       var txt=esc(g.player)+(g.type==='penalty'?' (PK)':g.type==='own'?' (OG)':'');
       rows+= isHome
         ? '<div class="h">⚽ '+txt+'</div><div class="mm">'+esc(g.minute)+"'</div><div class=\"a\"></div>"
         : '<div class="h"></div><div class="mm">'+esc(g.minute)+"'</div><div class=\"a\">"+txt+' ⚽</div>';
     });
+    var head='<div class="th h">'+esc(t.home||'')+'</div><div class="th"></div>'
+      +'<div class="th a">'+esc(t.away||'')+'</div>';
     if(!rows) rows='<div class="none">득점 정보 없음</div>';
     b.innerHTML='<div class="score-big">'+esc(t.homeScore)+' : '+esc(t.awayScore)+'</div>'
       +'<div class="score-sub">'+esc(t.date||'')+(t.detail?' · '+esc(t.detail):'')+'</div>'
-      +'<div class="tl">'+rows+'</div>';
+      +'<div class="tl">'+head+rows+'</div>';
     modal.classList.add('open');
   }
   document.getElementById('mClose').onclick=function(){modal.classList.remove('open');};
