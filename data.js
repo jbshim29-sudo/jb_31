@@ -4,7 +4,7 @@
  *  ※ 8강~결승은 아직 열리지 않아 "미정"으로 둡니다. API 자동 업데이트가 이후 채웁니다.
  */
 window.WC_DATA = {
-  updatedAt: "2026-07-09T19:20:00+09:00",
+  updatedAt: "2026-07-09T19:39:00+09:00",
 
   groups: [
     { name:"A",
@@ -517,7 +517,7 @@ window.WC_DATA = {
       {id:201, date:"07-09", kst:"07-10 05:00", home:"프랑스", away:"모로코", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
       {id:202, date:"07-11", kst:"07-12 06:00", home:"노르웨이", away:"잉글랜드", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
       {id:203, date:"07-10", kst:"07-11 04:00", home:"스페인", away:"벨기에", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:204, date:"07-11", home:"아르헨티나", away:"스위스", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
+      {id:204, date:"07-11", kst:"07-12 10:00", home:"아르헨티나", away:"스위스", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
     ],
 
     sf:[
