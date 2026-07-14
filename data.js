@@ -4,7 +4,7 @@
  *  ※ 8강~결승은 아직 열리지 않아 "미정"으로 둡니다. API 자동 업데이트가 이후 채웁니다.
  */
 window.WC_DATA = {
-  updatedAt: "2026-07-10T21:40:15+09:00",
+  updatedAt: "2026-07-14T22:45:00+09:00",
 
   groups: [
     { name:"A",
@@ -517,14 +517,24 @@ window.WC_DATA = {
       {id:201, date:"07-09", home:"프랑스", away:"모로코", homeScore:2, awayScore:0, status:"FT", winner:"프랑스",
         goals:[{minute:60,player:"Kylian Mbappé",side:"home",type:"goal"},
                {minute:66,player:"Ousmane Dembélé",side:"home",type:"goal"}]},
-      {id:202, date:"07-11", kst:"07-12 06:00", home:"노르웨이", away:"잉글랜드", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:203, date:"07-10", kst:"07-11 04:00", home:"스페인", away:"벨기에", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
-      {id:204, date:"07-11", kst:"07-12 10:00", home:"아르헨티나", away:"스위스", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
+      {id:202, date:"07-11", home:"노르웨이", away:"잉글랜드", homeScore:1, awayScore:2, status:"FT", winner:"잉글랜드", detail:"연장 승부",
+        goals:[{minute:36,player:"Andreas Schjelderup",side:"home",type:"goal"},
+               {minute:"45+2",player:"Jude Bellingham",side:"away",type:"goal"},
+               {minute:93,player:"Jude Bellingham",side:"away",type:"goal"}]},
+      {id:203, date:"07-10", home:"스페인", away:"벨기에", homeScore:2, awayScore:1, status:"FT", winner:"스페인",
+        goals:[{minute:30,player:"Fabián Ruiz",side:"home",type:"goal"},
+               {minute:41,player:"Charles De Ketelaere",side:"away",type:"goal"},
+               {minute:88,player:"Mikel Merino",side:"home",type:"goal"}]},
+      {id:204, date:"07-11", home:"아르헨티나", away:"스위스", homeScore:3, awayScore:1, status:"FT", winner:"아르헨티나", detail:"연장 승부",
+        goals:[{minute:10,player:"Alexis Mac Allister",side:"home",type:"goal"},
+               {minute:67,player:"Dan Ndoye",side:"away",type:"goal"},
+               {minute:112,player:"Julián Álvarez",side:"home",type:"goal"},
+               {minute:"120+1",player:"Lautaro Martínez",side:"home",type:"goal"}]}
     ],
 
     sf:[
-      {id:301, date:"07-14", kst:"07-15 04:00", home:"프랑스", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]},
-      {id:302, date:"07-15", kst:"07-16 04:00", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
+      {id:301, date:"07-14", kst:"07-15 04:00", home:"프랑스", away:"스페인", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]},
+      {id:302, date:"07-15", kst:"07-16 04:00", home:"잉글랜드", away:"아르헨티나", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
     ],
 
     final:{id:401, date:"07-19", kst:"07-20 04:00", home:"미정", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
