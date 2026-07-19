@@ -4,7 +4,7 @@
  *  ※ 8강~결승은 아직 열리지 않아 "미정"으로 둡니다. API 자동 업데이트가 이후 채웁니다.
  */
 window.WC_DATA = {
-  updatedAt: "2026-07-15T07:05:00+09:00",
+  updatedAt: "2026-07-19T18:45:00+09:00",
 
   groups: [
     { name:"A",
@@ -536,9 +536,12 @@ window.WC_DATA = {
       {id:301, date:"07-14", home:"프랑스", away:"스페인", homeScore:0, awayScore:2, status:"FT", winner:"스페인",
         goals:[{minute:22,player:"Mikel Oyarzabal",side:"away",type:"penalty"},
                {minute:58,player:"Pedro Porro",side:"away",type:"goal"}]},
-      {id:302, date:"07-15", kst:"07-16 08:00", home:"잉글랜드", away:"아르헨티나", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
+      {id:302, date:"07-15", home:"잉글랜드", away:"아르헨티나", homeScore:1, awayScore:2, status:"FT", winner:"아르헨티나",
+        goals:[{minute:55,player:"Anthony Gordon",side:"home",type:"goal"},
+               {minute:85,player:"Enzo Fernández",side:"away",type:"goal"},
+               {minute:"90+2",player:"Lautaro Martínez",side:"away",type:"goal"}]}
     ],
 
-    final:{id:401, date:"07-19", kst:"07-20 04:00", home:"스페인", away:"미정", homeScore:null, awayScore:null, status:"TBD", winner:null, goals:[]}
+    final:{id:401, date:"07-19", kst:"07-20 04:00", home:"스페인", away:"아르헨티나", homeScore:null, awayScore:null, status:"NS", winner:null, goals:[]}
   }
 };
